@@ -5,6 +5,11 @@ export enum EmployeeStatus {
   ABSENT = 'ABSENT'
 }
 
+export enum EntryModality {
+  PIN = 'PIN',
+  FACE = 'FACE'
+}
+
 export interface Employee {
   id: string;
   name: string;
@@ -23,19 +28,34 @@ export enum PunchType {
   OUT = 'OUT'
 }
 
+export enum EntryMethod {
+  AUTO = 'AUTO',
+  MANUAL = 'MANUAL'
+}
+
 export interface Punch {
   id: string;
   employeeId: string;
   type: PunchType;
   timestamp: string;
+  entryMethod: EntryMethod;
+  modality: EntryModality;
 }
 
 export interface AbsenceRecord {
   id: string;
   employeeId: string;
   date: string;
-  type: 'VACATION' | 'ABSENCE';
+  endDate?: string; // Para férias
+  type: 'VACATION' | 'ABSENCE' | 'IGNORED_ABSENCE';
   reason?: string;
+}
+
+export interface EmailConfig {
+  targetEmail: string;
+  scheduleTime: string;
+  enabled: boolean;
+  lastSentDate?: string;
 }
 
 export type AppView = 'DASHBOARD' | 'PUNCH' | 'EMPLOYEES' | 'HISTORY';

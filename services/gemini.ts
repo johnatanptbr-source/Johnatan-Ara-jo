@@ -1,8 +1,8 @@
 
 import { GoogleGenAI } from "@google/genai";
-import { Employee, Punch, EmployeeStatus } from '../types';
+import { Employee, Punch, AbsenceRecord } from '../types';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const GeminiService = {
   generateDailySummary: async (employees: Employee[], punches: Punch[]) => {
@@ -16,7 +16,7 @@ export const GeminiService = {
       return `${emp.name} (${emp.role}): Status ${emp.status}, Ponto: ${hasIn ? 'Entrada OK' : 'Sem Entrada'}, ${hasOut ? 'Saída OK' : 'Sem Saída'}`;
     }).join('\n');
 
-    const prompt = `Analise os dados de presença de hoje e crie um resumo profissional e motivacional em português (máximo 150 palavras) para o gerente de RH. Destaque quem faltou e quem está de férias.
+    const prompt = `És um assistente de RH em Portugal. Analisa os dados de presença de hoje e cria um resumo profissional e motivacional em Português de Portugal (pt-PT). Destaque ausências e quem está de férias.
     Dados de hoje (${today}):
     ${statusSummary}`;
 
@@ -30,6 +30,25 @@ export const GeminiService = {
     } catch (error) {
       console.error("Gemini summary error:", error);
       return "Não foi possível gerar o resumo inteligente no momento.";
+    }
+  },
+
+  draftDailyEmail: async (employees: Employee[], punches: Punch[], records: AbsenceRecord[]) => {
+    const today = new Date().toLocaleDateString('pt-PT');
+    const prompt = `Escreve o corpo de um email formal para a administração com o assunto "Relatório Diário de Assiduidade - ${today}". 
+    Utiliza Português de Portugal (vós não, apenas formalismo sr./sra.). 
+    Inclui uma secção para Ocorrências (Faltas/Férias) e outra para Pontos Registados.
+    Dados: ${employees.length} colaboradores totais, ${records.length} ocorrências ativas.
+    Sê conciso e profissional.`;
+
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt,
+      });
+      return response.text;
+    } catch (error) {
+      return "Erro ao gerar rascunho de email.";
     }
   }
 };
