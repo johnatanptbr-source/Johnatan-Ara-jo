@@ -12,7 +12,6 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ employees, punches, records, theme }) => {
-  const [summary, setSummary] = useState<string>('A gerar resumo inteligente...');
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   
   const today = new Date().toISOString().split('T')[0];
@@ -27,14 +26,6 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, punches, records, them
   const clockedInIds = Array.from(new Set(todayPunches.filter(p => p.type === 'IN').map(p => p.employeeId)));
   const automaticAbsences = activeEmployees.filter(e => !clockedInIds.includes(e.id));
   const absentCount = automaticAbsences.length + employees.filter(e => e.status === EmployeeStatus.ABSENT).length;
-
-  useEffect(() => {
-    const getSummary = async () => {
-      const res = await GeminiService.generateDailySummary(employees, punches);
-      setSummary(res || "Resumo indisponível.");
-    };
-    getSummary();
-  }, [employees, punches]);
 
   // ORDENADO POR MAIS ANTIGO (Crescente)
   const allPunchesSorted = useMemo(() => {
@@ -88,8 +79,8 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, punches, records, them
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 h-[350px]">
+      <div className="grid grid-cols-1 gap-6">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 h-[350px]">
           <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">Gráfico de Assiduidade Diária</h3>
           <ResponsiveContainer width="100%" height="80%">
             <BarChart data={chartData}>
@@ -102,20 +93,6 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, punches, records, them
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </div>
-
-        <div className="bg-indigo-600 dark:bg-indigo-900 text-white p-6 rounded-2xl shadow-xl flex flex-col border border-indigo-500/30">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-            </div>
-            <h3 className="text-lg font-black uppercase tracking-tight">AI RH Insights</h3>
-          </div>
-          <p className="text-indigo-50 text-sm leading-relaxed flex-1 italic font-medium">"{summary}"</p>
-          <div className="mt-6 pt-4 border-t border-white/10 flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-indigo-200">
-            <span>Gestão Automática</span>
-            <button onClick={() => setSummary('A atualizar...')} className="bg-white/10 px-3 py-1 rounded-full">Atualizar</button>
-          </div>
         </div>
       </div>
 
