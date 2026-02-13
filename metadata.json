@@ -1,0 +1,7 @@
+{
+  "name": "Copy of TimeKeeper Pro - Sistema de Ponto",
+  "description": "Um sistema moderno de gestão de ponto eletrônico com controle de funcionários, férias, faltas e relatórios em tempo real.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
